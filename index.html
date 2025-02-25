@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .background-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .hotspot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid #000;
+            border-radius: 50%;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+        }
+
+        .tooltip {
+            position: absolute;
+            max-width: 350px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .hotspot:hover + .tooltip {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://www.marciliodiasoficial.com.br/wp-content/uploads/2021/06/estadio_2020_aereo-scaled.jpg" alt="Imagem Interativa" class="background-image">
+        
+        <!-- Exemplo de ponto interativo (porcentagens representam posição relativa à imagem) -->
+        <div class="hotspot" style="left: 30%; top: 40%"></div>
+        <div class="tooltip" style="left: 32%; top: 42%">
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi.
+        </div>
+        
+        <div class="hotspot" style="left: 60%; top: 75%"></div>
+        <div class="tooltip" style="left: 62%; top: 75%">
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.
+        </div>
+
+        <!-- Adicione mais pontos conforme necessário -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltips = document.querySelectorAll('.tooltip');
+            
+            tooltips.forEach(tooltip => {
+                const container = tooltip.closest('.container');
+                const containerRect = container.getBoundingClientRect();
+                const hotspot = tooltip.previousElementSibling;
+                
+                // Ajusta posição do tooltip se necessário
+                function adjustTooltipPosition() {
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const hotspotRect = hotspot.getBoundingClientRect();
+                    
+                    let left = parseFloat(tooltip.style.left);
+                    let top = parseFloat(tooltip.style.top);
+                    
+                    // Ajusta horizontalmente
+                    const hotspotLeftPercent = (hotspotRect.left - containerRect.left) / containerRect.width * 100;
+                    
+                    if (hotspotLeftPercent >= 70) {
+                        // Se o hotspot estiver após 70%, posiciona tooltip à esquerda
+                        left = hotspotLeftPercent - (tooltipRect.width / containerRect.width * 100);
+                    } else {
+                        // Caso contrário, posiciona à direita
+                        left = hotspotLeftPercent;
+                    }
+                    
+                    // Ajusta verticalmente
+                    if (tooltipRect.top < containerRect.top) {
+                        // Se ultrapassar o limite superior
+                        top = 0;
+                    } else if (tooltipRect.bottom > containerRect.bottom) {
+                        // Se ultrapassar o limite inferior
+                        top = (containerRect.height - tooltipRect.height) / containerRect.height * 100;
+                    }
+                    
+                    tooltip.style.left = left + '%';
+                    tooltip.style.top = top + '%';
+                }
+                
+                // Observa mudanças na visibilidade do tooltip
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (tooltip.style.display === 'block') {
+                            adjustTooltipPosition();
+                        }
+                    });
+                });
+                
+                observer.observe(tooltip, { attributes: true, attributeFilter: ['style'] });
+            });
+        });
+    </script>
+</body>
+</html>
